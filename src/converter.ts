@@ -1,8 +1,22 @@
 class SSMLConverter {
   private ssml: string;
+  private lexicon: Record<
+    string,
+    {
+      type: string; // alias or phoneme
+      value: string; // value to replace with (alias) or phoneme value
+    }
+  >;
 
   constructor() {
     this.ssml = '';
+    this.lexicon = {};
+  }
+
+  // Load lexicon for SSML conversion
+  loadLexicon(lexicon: Record<string, { type: string; value: string }>) {
+    this.lexicon = lexicon;
+    return this;
   }
 
   // Start the SSML document
@@ -17,9 +31,30 @@ class SSMLConverter {
     return this.ssml;
   }
 
-  // Add plain text
+  // Add text with lexicon replacement support
+  // Add text with lexicon replacement support for Japanese text (no spaces between words)
   addText(text: string) {
-    this.ssml += text;
+    let i = 0;
+    while (i < text.length) {
+      let matched = false;
+      for (const lexeme in this.lexicon) {
+        if (text.startsWith(lexeme, i)) {
+          const entry = this.lexicon[lexeme];
+          if (entry.type === 'alias') {
+            this.ssml += `<sub alias="${entry.value}">${lexeme}</sub>`;
+          } else if (entry.type === 'phoneme') {
+            this.ssml += `<phoneme alphabet="ipa" ph="${entry.value}">${lexeme}</phoneme>`;
+          }
+          i += lexeme.length; // Move index forward by the length of the matched lexeme
+          matched = true;
+          break;
+        }
+      }
+      if (!matched) {
+        this.ssml += text[i];
+        i++;
+      }
+    }
     return this;
   }
 

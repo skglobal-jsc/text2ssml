@@ -5,6 +5,12 @@ describe('SSMLConverter', () => {
 
   beforeEach(() => {
     converter = new SSMLConverter();
+
+    // load lexicon for testing
+    converter.loadLexicon({
+      alias: { type: 'alias', value: 'alias' },
+      phoneme: { type: 'phoneme', value: 'phoneme' },
+    });
   });
 
   describe('addSayAs', () => {
@@ -29,6 +35,30 @@ describe('SSMLConverter', () => {
     it('should add sub alias', () => {
       const result = converter.start().addSub('123', 'alias').end();
       expect(result).toBe('<speak><sub alias="alias">123</sub></speak>');
+    });
+
+    // test lexicon phoneme
+    it('should add phoneme', () => {
+      const result = converter.start().addText('phoneme').end();
+      expect(result).toBe('<speak><phoneme alphabet="ipa" ph="phoneme">phoneme</phoneme></speak>');
+    });
+
+    // test lexicon alias
+    it('should add alias', () => {
+      const result = converter.start().addText('alias').end();
+      expect(result).toBe('<speak><sub alias="alias">alias</sub></speak>');
+    });
+
+    // test multiple words with lexicon
+    it('should add multiple words with lexicon', () => {
+      const result = converter.start().addText('alias phoneme').end();
+      expect(result).toBe('<speak><sub alias="alias">alias</sub> <phoneme alphabet="ipa" ph="phoneme">phoneme</phoneme></speak>');
+    });
+
+    // the lexicon is case-sensitive.
+    it('should add multiple words with lexicon (case-sensitive)', () => {
+      const result = converter.start().addText('Alias Phoneme').end();
+      expect(result).toBe('<speak>Alias Phoneme</speak>');
     });
   });
 });

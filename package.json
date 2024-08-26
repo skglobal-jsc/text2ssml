@@ -1,7 +1,7 @@
 {
   "name": "@sk-global/text2ssml",
   "description": "Convert text to SSML.",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "source": "src/index.ts",
   "main": "dist/index.js",
   "module": "dist/index.module.js",
